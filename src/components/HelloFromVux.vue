@@ -257,10 +257,11 @@
     create: function () {
       let self=this;
       vue.$on('save', function () {
-        let childData=vue.$emit('saveChild')
-        self.unitData.forEach(function (item) {
+        console.log('save save save')
+        //let childData=vue.$emit('saveChild')
+       /* self.unitData.forEach(function (item) {
 
-        })
+        })*/
       })
     }
   }
