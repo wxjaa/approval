@@ -12,7 +12,7 @@ const routes = [{
   path: '/',
   component: Home
 }]
-
+window.vue = new Vue()
 const router = new VueRouter({
   routes
 })

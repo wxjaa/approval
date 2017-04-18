@@ -7,46 +7,52 @@
     <group title="cell demo">
       <cell title="Vux" value="Cool" is-link></cell>
     </group>-->
-    <div>{{lable}}</div>
-    <group label-width="4.5em" label-margin-right="2em" label-align="left">
-      <div v-for="item in dataList">
+    <group id="group" label-width="4.5em" label-margin-right="2em" label-align="left">
+      <div style="margin-top: 0.5em;background: #fff" v-for="(item,i) in dataList">
         <!-------单行输入------>
-        <x-input v-if="item.componentName=='textfield'" :show-clear="false" :placeholder="item.defaultProps"
+        <x-input v-model="unitData[i].value" v-if="item.componentName=='textfield'" :show-clear="false"
+                 :placeholder="item.defaultProps"
                  v-bind:title="item.defaultLable"></x-input>
         <!-------多行输入------>
-        <x-textarea v-if="item.componentName=='textareafield'" :placeholder="item.defaultProps"
+        <x-textarea v-model="unitData[i].value" v-if="item.componentName=='textareafield'"
+                    :placeholder="item.defaultProps"
                     v-bind:title="item.defaultLable"></x-textarea>
         <!-------数字------>
-        <x-number v-if="item.componentName=='numberfield'" :placeholder="item.defaultProps"
+        <x-number v-model="unitData[i].value" v-if="item.componentName=='numberfield'"
+                  :placeholder="item.defaultProps"
                   v-bind:title="item.defaultLable"></x-number>
         <!-------单选------>
-        <selector v-if="item.componentName=='ddselectfield'" :options="item.defaultOptions"
+        <selector v-model="unitData[i].value" v-if="item.componentName=='ddselectfield'"
+                  :options="item.defaultOptions"
                   :placeholder="item.defaultProps" v-bind:title="item.defaultLable"></selector>
         <!-------多选框------>
         <div class="weui-cell box" v-if="item.componentName=='ddmultiselectfield'">
           <div class="weui-cell__hd" style="width:4.5em">{{item.defaultLable}}</div>
-          <checker type="checkbox" default-item-class="demo1-item" selected-item-class="demo1-item-selected">
+          <checker v-model="unitData[i].value" type="checkbox" default-item-class="demo1-item"
+                   selected-item-class="demo1-item-selected">
             <checker-item v-for="(option,index) in item.defaultOptions" :value="option.idx">{{option.text}}
             </checker-item>
           </checker>
         </div>
         <!-------日期时间------>
-        <datetime v-if="item.componentName=='dddatefield'" :format="item.defaultFormat" :placeholder="item.defaultProps"
+        <datetime v-model="unitData[i].value" v-if="item.componentName=='dddatefield'" :format="item.defaultFormat"
+                  :placeholder="item.defaultProps"
                   :title="item.defaultLable"></datetime>
         <!-------日期区间------>
         <div v-if="item.componentName=='dddaterangefield'">
-          <datetime :format="item.defaultFormat" :placeholder="item.defaultProps"
+          <datetime v-model="unitData[i].value[0]" :format="item.defaultFormat" :placeholder="item.defaultProps"
                     :title="item.defaultLable"></datetime>
-          <datetime :format="item.defaultFormat" :placeholder="item.defaultProps2"
+          <datetime v-model="unitData[i].value[1]" :format="item.defaultFormat" :placeholder="item.defaultProps2"
                     :title="item.defaultLable2"></datetime>
-          <x-input v-if="item.defaultAutorekonTime"
+          <x-input v-model="unitData[i].value[2]" v-if="item.defaultAutorekonTime"
                    title="时长"></x-input>
         </div>
         <!-------说明文字------>
-        <x-input v-if="item.componentName=='textnote'" :placeholder="item.defaultProps"
+        <x-input v-model="unitData[i].value" v-if="item.componentName=='textnote'" :placeholder="item.defaultProps"
                  v-bind:title="item.defaultLable"></x-input>
         <!-------金额------>
-        <x-input v-if="item.componentName=='moneyfield'" :placeholder="item.defaultProps"
+        <x-input v-model="unitData[i].value" v-if="item.componentName=='moneyfield'"
+                 :placeholder="item.defaultProps"
                  v-bind:title="item.defaultLable"></x-input>
         <!-------图片------>
         <div class="weui-cell" v-if="item.componentName=='ddphotofield'">
@@ -83,13 +89,15 @@
           </div>
         </div>
         <!----外部联系人----->
-        <cell islink v-if="item.componentName=='externalcontactfield'" :title="item.defaultLable">
+        <cell v-model="unitData[i].value" islink v-if="item.componentName=='externalcontactfield'"
+              :title="item.defaultLable">
           <div slot="value">
             <span>{{item.defaultProps}}</span>
           </div>
         </cell>
         <!-----明细------>
-        <child v-if="item.componentName=='tablefield'" :action="item.defaultAction" :label="item.defaultLable" :dataList="item.components">
+        <child v-if="item.componentName=='tablefield'" :action="item.defaultAction" :label="item.defaultLable"
+               :dataList="item.components">
 
         </child>
       </div>
@@ -97,7 +105,8 @@
   </div>
 </template>
 
-<script>
+<script type="text/ecmascript-6">
+  import {mapState,mapActions} from 'vuex'
   import {
     Group,
     Cell,
@@ -143,14 +152,53 @@
         msg: '',
         dataList: [],
         imgList: [],
-        fileList: []
+        fileList: [],
+        unitData: []
       }
     },
     mounted: function () {
       let self = this;
       this.$http.get('http://192.168.31.105:3000/components').then(function (res) {
-        console.log(res.data.components)
-        console.log(self)
+        res.data.components.forEach(function (item) {
+          switch (item.componentName) {
+            case 'textfield':
+            case 'textareafield' :
+            case 'numberfield' :
+            case 'ddselectfield':
+            case 'dddatefield' :
+            case 'textnote':
+            case 'moneyfield':
+            case 'externalcontactfield':
+              self.unitData.push({
+                label: item.defaultLable,
+                value: ''
+              })
+              break;
+            case 'ddmultiselectfield':
+            case 'ddphotofield':
+            case 'ddattachment':
+            case 'tablefield':
+              self.unitData.push({
+                label: item.defaultLable,
+                value: []
+              })
+              break;
+            case 'dddaterangefield':
+              if (item.defaultAutorekonTime) {
+                self.unitData.push({
+                  label: [item.defaultLable, item.defaultLable2],
+                  value: ['', '', '']
+                })
+              } else {
+                self.unitData.push({
+                  label: [item.defaultLable, item.defaultLable2],
+                  value: ['', '']
+                })
+              }
+              break;
+          }
+        })
+        console.log(self.unitData)
         self.dataList = res.data.components
       }, function (res) {
         console.error(res)
@@ -201,11 +249,28 @@
         let idx = e.currentTarget.getAttribute('data-index');
         this.fileList.splice(idx, 1)
       }
+    },
+
+    computed: mapState({
+      isLoading: state=>state.isLoading
+    }),
+    create: function () {
+      let self=this;
+      vue.$on('save', function () {
+        let childData=vue.$emit('saveChild')
+        self.unitData.forEach(function (item) {
+
+        })
+      })
     }
   }
 </script>
 
 <style>
+  #group > div {
+    background: #ccc !important;
+  }
+
   .demo1-item {
     border: 1px solid #ececec;
     padding: 5px 15px;
