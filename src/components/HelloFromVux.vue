@@ -96,7 +96,8 @@
           </div>
         </cell>
         <!-----明细------>
-        <child v-if="item.componentName=='tablefield'" :action="item.defaultAction" :label="item.defaultLable"
+        <child v-if="item.componentName=='tablefield'" :idx="i" :action="item.defaultAction"
+               :label="item.defaultLable"
                :dataList="item.components">
 
         </child>
@@ -159,6 +160,8 @@
     mounted: function () {
       let self = this;
       this.$http.get('http://192.168.31.105:3000/components').then(function (res) {
+        self.$store.dispatch('changeTitle', res.data.title)
+
         res.data.components.forEach(function (item) {
           switch (item.componentName) {
             case 'textfield':
@@ -181,7 +184,8 @@
               self.unitData.push({
                 label: item.defaultLable,
                 value: []
-              })
+              });
+              self.$store.dispatch('addTableComponentsTotal')
               break;
             case 'dddaterangefield':
               if (item.defaultAutorekonTime) {
@@ -199,6 +203,7 @@
           }
         })
         console.log(self.unitData)
+
         self.dataList = res.data.components
       }, function (res) {
         console.error(res)
@@ -254,14 +259,15 @@
     computed: mapState({
       isLoading: state=>state.isLoading
     }),
-    create: function () {
-      let self=this;
-      vue.$on('save', function () {
+    created: function () {
+      let self = this;
+      vue.$on("save", function () {
         console.log('save save save')
-        //let childData=vue.$emit('saveChild')
-       /* self.unitData.forEach(function (item) {
+        self.$store.dispatch('updateData', self.unitData)
+        vue.$emit('saveChild')
+        /* self.unitData.forEach(function (item) {
 
-        })*/
+         })*/
       })
     }
   }

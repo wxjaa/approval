@@ -6,6 +6,7 @@ import VueRouter from 'vue-router'
 import App from './App'
 import Home from './components/HelloFromVux'
 import { AjaxPlugin } from 'vux'
+import store from './store/'
 Vue.use(VueRouter)
 Vue.use(AjaxPlugin)
 const routes = [{
@@ -14,7 +15,7 @@ const routes = [{
 }]
 window.vue = new Vue()
 const router = new VueRouter({
-  routes
+  routes,
 })
 
 FastClick.attach(document.body)
@@ -24,5 +25,6 @@ Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app-box')

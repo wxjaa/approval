@@ -102,7 +102,7 @@
     <div @click="addChild" class="weui-flex vux-1px-tb" style="padding:10px 0">
       <div class="weui-flex__item" style="display:flex;justify-content: center">
         <x-icon type="ios-plus-empty" size="30"></x-icon>
-        <span style="line-height: 30px;color:dodgerblue">{{action}}</span>
+        <span style="line-height: 30px;color:dodgerblue">{{action}}{{idx}}</span>
       </div>
     </div>
   </div>
@@ -126,6 +126,7 @@
     GridItem,
     Panel
   } from 'vux'
+  import {mapState,mapActions} from 'vuex'
   export default {
     components: {
       Group,
@@ -152,7 +153,7 @@
         childDataList: []
       }
     },
-    props: ['dataList', 'label', 'action'],
+    props: ['dataList', 'label', 'action', "idx"],
     mounted: function () {
       let self = this
       self.dataList.forEach(function (item) {
@@ -252,6 +253,13 @@
         let idx = e.currentTarget.getAttribute('data-index');
         this.fileList.splice(idx, 1)
       }
+    },
+    created: function () {
+      let self = this
+      vue.$on("saveChild", function () {
+        self.$store.dispatch('updateDateByIdx', {data: self.childDataList, idx: self.idx})
+        /*return self.childDataList*/
+      })
     }
   }
 </script>
